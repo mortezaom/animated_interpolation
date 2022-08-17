@@ -697,21 +697,18 @@ class _TabStyle extends AnimatedWidget {
     // To enable TextStyle.lerp(style1, style2, value), both styles must have
     // the same value of inherit. Force that to be inherit=true here.
     final TextStyle defaultStyle = (labelStyle ??
-            tabBarTheme.labelStyle ??
-            themeData.primaryTextTheme.body2)
+            tabBarTheme.labelStyle)
         .copyWith(inherit: true);
     final TextStyle defaultUnselectedStyle = (unselectedLabelStyle ??
             tabBarTheme.unselectedLabelStyle ??
-            labelStyle ??
-            themeData.primaryTextTheme.body2)
+            labelStyle)
         .copyWith(inherit: true);
     final TextStyle textStyle = selected
         ? TextStyle.lerp(defaultStyle, defaultUnselectedStyle, animation.value)
         : TextStyle.lerp(defaultUnselectedStyle, defaultStyle, animation.value);
 
     final Color selectedColor = labelColor ??
-        tabBarTheme.labelColor ??
-        themeData.primaryTextTheme.body2.color;
+        tabBarTheme.labelColor;
     final Color unselectedColor = unselectedLabelColor ??
         tabBarTheme.unselectedLabelColor ??
         selectedColor.withAlpha(0xB2); // 70% alpha
