@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-export 'fading.dart';
+
 export 'animated_config.dart';
-export 'bounce.dart';
-export 'sliding.dart';
-export 'zooming.dart';
-export 'light_speed.dart';
 export 'attention_seekers.dart';
+export 'bounce.dart';
+export 'fading.dart';
 export 'flippers.dart';
+export 'light_speed.dart';
+export 'sliding.dart';
 export 'smart_tabbar.dart';
 export 'sweet_indicator_painter.dart';
+export 'zooming.dart';
+
 ///
 /// 加强型的tween，可设置多个插值，受到React Native的插值动画启发
 /// 和tween使用方法一样
@@ -18,8 +20,8 @@ export 'sweet_indicator_painter.dart';
 ///
 class InterpolationTween extends Animatable<double> {
   InterpolationTween({
-    @required this.inputRange,
-    @required this.outputRange,
+    required this.inputRange,
+    required this.outputRange,
     this.curve = const _Linear._(),
     this.extrapolate,
     this.extrapolateLeft = ExtrapolateType.extend,
@@ -29,7 +31,7 @@ class InterpolationTween extends Animatable<double> {
   final List<double> inputRange;
   final List<double> outputRange;
   final Curve curve;
-  final ExtrapolateType extrapolate;
+  final ExtrapolateType? extrapolate;
   final ExtrapolateType extrapolateLeft;
   final ExtrapolateType extrapolateRight;
 
@@ -38,17 +40,17 @@ class InterpolationTween extends Animatable<double> {
       inputRange: inputRange,
       outputRange: outputRange,
       curve: curve,
-      extrapolate: extrapolate,
+      extrapolate: extrapolate ?? ExtrapolateType.clamp,
       extrapolateLeft: extrapolateLeft,
       extrapolateRight: extrapolateRight))(t);
 }
 
 class ColorInterpolationTween extends Animatable<Color> {
   ColorInterpolationTween({
-    @required this.inputRange,
-    @required this.outputRange,
+    required this.inputRange,
+    required this.outputRange,
     this.curve = const _Linear._(),
-    this.extrapolate,
+    this.extrapolate = ExtrapolateType.extend,
     this.extrapolateLeft = ExtrapolateType.extend,
     this.extrapolateRight = ExtrapolateType.extend,
   });
@@ -65,7 +67,8 @@ class ColorInterpolationTween extends Animatable<Color> {
     return Color.fromARGB(
       createInterpolation(InterpolationConfigType(
               inputRange: inputRange,
-              outputRange: outputRange.map((color) => color.alpha.toDouble()).toList(),
+              outputRange:
+                  outputRange.map((color) => color.alpha.toDouble()).toList(),
               curve: curve,
               extrapolate: extrapolate,
               extrapolateLeft: extrapolateLeft,
@@ -74,7 +77,8 @@ class ColorInterpolationTween extends Animatable<Color> {
           .clamp(0, 255),
       createInterpolation(InterpolationConfigType(
               inputRange: inputRange,
-              outputRange: outputRange.map((color) => color.red.toDouble()).toList(),
+              outputRange:
+                  outputRange.map((color) => color.red.toDouble()).toList(),
               curve: curve,
               extrapolate: extrapolate,
               extrapolateLeft: extrapolateLeft,
@@ -83,7 +87,8 @@ class ColorInterpolationTween extends Animatable<Color> {
           .clamp(0, 255),
       createInterpolation(InterpolationConfigType(
               inputRange: inputRange,
-              outputRange: outputRange.map((color) => color.green.toDouble()).toList(),
+              outputRange:
+                  outputRange.map((color) => color.green.toDouble()).toList(),
               curve: curve,
               extrapolate: extrapolate,
               extrapolateLeft: extrapolateLeft,
@@ -92,7 +97,8 @@ class ColorInterpolationTween extends Animatable<Color> {
           .clamp(0, 255),
       createInterpolation(InterpolationConfigType(
               inputRange: inputRange,
-              outputRange: outputRange.map((color) => color.blue.toDouble()).toList(),
+              outputRange:
+                  outputRange.map((color) => color.blue.toDouble()).toList(),
               curve: curve,
               extrapolate: extrapolate,
               extrapolateLeft: extrapolateLeft,
@@ -123,15 +129,13 @@ class _Linear extends Curve {
 ///
 class InterpolationConfigType {
   InterpolationConfigType({
-    @required this.inputRange,
-    @required this.outputRange,
+    required this.inputRange,
+    required this.outputRange,
     this.curve = const _Linear._(),
-    this.extrapolate,
+    this.extrapolate = ExtrapolateType.clamp,
     this.extrapolateLeft = ExtrapolateType.extend,
     this.extrapolateRight = ExtrapolateType.extend,
-  })  : assert(inputRange != null),
-        assert(outputRange != null),
-        assert(inputRange.length >= 2),
+  })  : assert(inputRange.length >= 2),
         assert(outputRange.length >= 2),
         assert(inputRange.length == outputRange.length);
 
@@ -164,10 +168,11 @@ DoubleCallBack<double> createInterpolation(InterpolationConfigType config) {
     int range = findRange(input, config.inputRange);
 
     ExtrapolateType extrapolateLeft = config.extrapolateLeft;
-    if (config.extrapolate != null) extrapolateLeft = config.extrapolate;
+    extrapolateLeft = config.extrapolate;
 
     ExtrapolateType extrapolateRight = config.extrapolateRight;
-    if (config.extrapolate != null) extrapolateRight = config.extrapolate;
+    extrapolateRight = config.extrapolate;
+
     ///
     /// 由于flutter中Curve.transform使用assert限制在0-1之间
     /// 所以其ExtrapolateType固定设置为clamp，此处于React Native
@@ -190,14 +195,14 @@ DoubleCallBack<double> createInterpolation(InterpolationConfigType config) {
 /// 插值计算实现
 ///
 double interpolate({
-  double input,
-  double inputMin,
-  double inputMax,
-  double outputMin,
-  double outputMax,
+  double input = 0,
+  double inputMin = 0,
+  double inputMax = 0,
+  double outputMin = 0,
+  double outputMax = 0,
   Curve curve = const _Linear._(),
-  ExtrapolateType extrapolateLeft,
-  ExtrapolateType extrapolateRight,
+  ExtrapolateType extrapolateLeft = ExtrapolateType.extend,
+  ExtrapolateType extrapolateRight = ExtrapolateType.extend,
 }) {
   double result = input;
 
@@ -243,7 +248,7 @@ double interpolate({
   }
 
   // Easing
-  if(curve == null)curve = _Linear._();
+  if (curve == null) curve = _Linear._();
   result = curve.transform(result);
 
   // Output Range

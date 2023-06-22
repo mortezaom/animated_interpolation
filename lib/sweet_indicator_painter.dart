@@ -1,17 +1,18 @@
-import 'smart_tabbar.dart';
 import 'package:flutter/material.dart';
+
 import 'animated_interpolation.dart';
+
 ///
 ///
 /// 一个好看的IndicatorPainter，
 /// 放入SmartTabBar的indicatorBuilder可观察到结果
 class SweetIndicatorPainter extends IndicatorPainter {
   SweetIndicatorPainter({
-    @required TabController controller,
-    @required Decoration indicator,
-    @required TabBarIndicatorSize indicatorSize,
-    @required List<GlobalKey> tabKeys,
-    IndicatorPainter old,
+    required TabController controller,
+    required Decoration indicator,
+    required TabBarIndicatorSize indicatorSize,
+    required List<GlobalKey> tabKeys,
+    required IndicatorPainter old,
   }) : super(
             controller: controller,
             indicator: indicator,
@@ -19,7 +20,7 @@ class SweetIndicatorPainter extends IndicatorPainter {
             tabKeys: tabKeys,
             old: old);
 
-  BoxPainter _painter;
+  BoxPainter? _painter;
   bool _needsPaint = false;
   void markNeedsPaint() {
     _needsPaint = true;
@@ -31,8 +32,6 @@ class SweetIndicatorPainter extends IndicatorPainter {
   }
 
   Rect indicatorRect(Size tabBarSize, int tabIndex) {
-    assert(currentTabOffsets != null);
-    assert(currentTextDirection != null);
     assert(currentTabOffsets.isNotEmpty);
     assert(tabIndex >= 0);
     assert(tabIndex <= maxTabIndex);
@@ -57,7 +56,7 @@ class SweetIndicatorPainter extends IndicatorPainter {
       return (_tabRight - _tabLeft - 20) / 2;
     }
 
-    double value = controller.animation.value;
+    double value = controller.animation?.value ?? 0;
     int step = (tabIndex - controller.previousIndex).abs();
     if (value == tabIndex)
       return Rect.fromLTRB(tabLeft, 0.0, tabRight, tabBarSize.height);
@@ -71,12 +70,12 @@ class SweetIndicatorPainter extends IndicatorPainter {
                   InterpolationTween(
                     inputRange: [
                       tabIndex.toDouble(),
-                      tabIndex.toDouble() + step/2.0,
+                      tabIndex.toDouble() + step / 2.0,
                       tabIndex.toDouble() + step
                     ],
                     outputRange: [0, 0, 1],
                   ).evaluate(
-                    controller.animation,
+                    controller.animation!,
                   ),
           0.0,
           tabRight +
@@ -86,12 +85,12 @@ class SweetIndicatorPainter extends IndicatorPainter {
                   InterpolationTween(
                     inputRange: [
                       tabIndex.toDouble(),
-                      tabIndex.toDouble() + step/2,
+                      tabIndex.toDouble() + step / 2,
                       tabIndex.toDouble() + step
                     ],
                     outputRange: [0, 1, 1],
                   ).evaluate(
-                    controller.animation,
+                    controller.animation!,
                   ),
           tabBarSize.height);
     } else
@@ -103,12 +102,12 @@ class SweetIndicatorPainter extends IndicatorPainter {
                   InterpolationTween(
                     inputRange: [
                       tabIndex.toDouble() - step,
-                      tabIndex.toDouble() - step/2,
+                      tabIndex.toDouble() - step / 2,
                       tabIndex.toDouble(),
                     ],
                     outputRange: [1, 1, 0],
                   ).evaluate(
-                    controller.animation,
+                    controller.animation!,
                   ),
           0.0,
           tabRight +
@@ -118,12 +117,12 @@ class SweetIndicatorPainter extends IndicatorPainter {
                   InterpolationTween(
                     inputRange: [
                       tabIndex.toDouble() - step,
-                      tabIndex.toDouble() - step/2,
+                      tabIndex.toDouble() - step / 2,
                       tabIndex.toDouble(),
                     ],
                     outputRange: [1, 0, 0],
                   ).evaluate(
-                    controller.animation,
+                    controller.animation!,
                   ),
           tabBarSize.height);
   }
@@ -138,7 +137,7 @@ class SweetIndicatorPainter extends IndicatorPainter {
       size: preRect.size,
       textDirection: currentTextDirection,
     );
-    _painter.paint(canvas, preRect.topLeft, configuration);
+    _painter?.paint(canvas, preRect.topLeft, configuration);
   }
 
   @override
